@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+    <header>
+        <meta charset="utf-8">
+        <title></title>
+    </header>
+    <body>
+        <div id='home'> 
+            <p>Home</p>
+            <button class="ButtonStartGame" id="c10" onclick="start(10)">10</button>
+            <button class="ButtonStartGame" id="c20" onclick="start(20)">20</button>
+        </div>
+
+        <div id='game'>
+            <p>Game</p>
+            <p id='no'></p>
+            <p id='question'>Qus</p>
+            <p ><img src="" id='img'></p>
+            <button class="ButtonChoice" id="a" >a</button>
+            <button class="ButtonChoice" id="b" >b</button>
+            <button class="ButtonChoice" id="c" >c</button>
+            <button class="ButtonChoice" id="d" >d</button>
+        </div>
+
+        <div id='end'>
+            <p>Score ..</p>
+            <p id='score'>0</p>
+        </div>
+        <p id='time'>Time</p>
+        <div>
+            <button class="restart" id="ButtonRestart" onclick="restart()">Restart</button>
+        </div>
+        <script src="jquery-3.3.1.min.js" type="text/javascript"></script>
+        
+
+        <script>
+            $('#game').hide();
+            $('#end').hide();
+            $('#time').hide();
+            $('#ButtonRestart').hide();
+            var ans;
+            var n = 0;
+            var qusAll=[];
+            var qusList=[];
+            var score = 0;
+            var time = 6;
+            var timeSet;
+
+            function start(n){
+                $('#home').hide();
+                $('#game').show();
+                $('#time').show();
+
+                $(document).ready(function(){
+                    $.ajax({
+                        url: 'question.json',
+                        method: 'GET',
+                        success:function(response){
+                            console.log(response);
+                            qusAll = response;
+                            setQus(n);
+                            showQus();
+                            countTime()
+                    }
+                })
+            })
+            }
+
+            function setQus(n){
+                for(i = 0; i<n; i++){
+                    var temp = Math.floor(Math.random() * (qusAll.length-1));
+                    qusList.push(qusAll[temp]);
+                    qusAll.splice(temp,1)
+                }
+                console.log(qusList);
+            }
+
+            function showQus(){
+                $('#no').html(n);
+                if(n==qusList.length){
+                    $('#game').hide();
+                    $('#end').show();
+                    $('#time').hide();
+                    $('#ButtonRestart').show();
+                }   
+                if(n<qusList.length){
+                    $("#question").html(qusList[n].question);
+                    $('#img').attr('src',qusList[n].img);
+                    $("#a").html(qusList[n].a);
+                    $("#b").html(qusList[n].b);
+                    $("#c").html(qusList[n].c);
+                    $("#d").html(qusList[n].d);
+                    ans=qusList[n].ans;
+                }
+                timeSet = setTimeout(changeQus, 6000);
+                
+            }
+
+            $('.ButtonChoice').click(function(){
+                if (ans == $(this).html()){
+                    clearTimeout( timeSet )
+                    score++;
+                    time=6;
+                    $("#score").html(score);
+                    console.log("OK");
+                    changeQus();
+                }
+            })
+
+            function changeQus(){
+                
+                n++;
+                showQus(n);
+            }
+            
+            function countTime(){
+                time--;
+                setTimeout(countTime, 1000);
+                $("#time").html(time);
+                if(time <= 0){
+                    time = 6
+                }
+                
+            }
+
+            function setTime(){
+                $("#time").html(time);
+            }
+            
+            function restart(){
+                location.reload();
+            }
+        </script>
+    </body>
+</html>
